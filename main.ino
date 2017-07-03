@@ -1,20 +1,10 @@
-int input;
-int sp;
+int BTReset = 3;
+int LED = 13;
+int sp = 0;
+char input = 0;         // incoming serial byte
 
-void setup() {
-  // put your setup code here, to run once:
-  pinMode(9,OUTPUT);
-  pinMode(7,OUTPUT);
-  Serial.begin(9600);
-  sp = 0;
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-  input = Serial.read();
-  if (input != -1)
-  {
-    switch(input){
+void handle_command() {
+  switch(input){
       case 'u':
         if (sp < 255) sp += 5;
         Serial.println(sp);
@@ -39,5 +29,28 @@ void loop() {
       analogWrite(9,0);
       break;
       }
-  }
 }
+ 
+void setup() {
+  // make the Bluetooth Module reset:
+  digitalWrite(BTReset, LOW);
+  delay(100);
+  digitalWrite(BTReset, HIGH);
+  delay(500);
+  // initialize serial communication at 115200 bits per second:
+  Serial.begin(115200);
+  pinMode(LED, OUTPUT);  // make a LED pin output
+}
+ 
+void loop() {
+  // if we get a valid byte, read analog ins:
+  if (Serial.available() > 0) {
+    // get incoming byte:
+    input = Serial.read();
+    handle_command();
+    delay(100);
+  }
+  delay(1);        // delay in between reads for stability
+}
+
+
